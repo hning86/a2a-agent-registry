@@ -421,3 +421,36 @@ body {
     transform: scale(0.8);
   }
 }
+
+/* Footer Metadata Styling */
+.footer-metadata {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.footer-metadata a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s ease;
+}
+
+.footer-metadata a:hover {
+  color: var(--primary-color);
+}
+
+.footer-metadata .divider {
+  color: #cbd5e1;
+}
+
+.footer-metadata .github-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
