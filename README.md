@@ -63,20 +63,23 @@ You can also use features from the [ADK](https://adk.dev/) CLI with `uv run adk`
 
 ---
 
-## Development
+## Architecture
 
-Edit your agent logic in `app/agent.py` and test with `agents-cli playground` - it auto-reloads on save.
+The project can be run locally for development or deployed fully to Google Cloud Platform. 
 
 - **Math Agent (`math_agent`):** Deployed to Google Cloud Agent Runtime (Vertex AI Agent Engine).
-- **Orchestrator Agent (`orchestrator_agent`):** Runs locally and communicates with the GCP-hosted Math Agent via the A2A protocol.
+- **Orchestrator Agent (`orchestrator_agent`):** Bundled into a FastAPI web application and deployed to **GCP Cloud Run** (or run locally via `uvicorn`). It communicates with the GCP-hosted Math Agent via A2A protocol.
 
-### Multi-Agent Architecture
+### Multi-Agent Architecture (Cloud Run Topology)
 
 ```mermaid
 %%{init: {'themeVariables': {'fontSize': '12px', 'subgraphFontSize': '13px'}}}%%
 graph TD
-    subgraph localEnv ["<b>Local Environment (Client)</b>"]
-        User["User Prompt"]
+    subgraph userEnv ["<b>Client / User Browser</b>"]
+        User["User Browser UI"]
+    end
+
+    subgraph runEnv ["<b>Cloud Run (a2a-web-ui)</b>"]
         Orchestrator["Orchestrator Agent (orchestrator_agent)"]
         RemoteAgentClient["Remote A2A Agent Client (math_agent_client)"]
         RollAgent["Roll Agent (roll_agent)"]
@@ -91,7 +94,7 @@ graph TD
         GetFibonacci["get_fibonacci Tool"]
     end
 
-    %% Vertical alignment force inside Local Env to stack components vertically
+    %% Vertical alignment force inside Run Env to stack components vertically
     RollDie ~~~ RemoteAgentClient
 
     %% Vertical alignment force inside GCP Env to keep it narrow and aligned
@@ -99,7 +102,7 @@ graph TD
     CheckPrime ~~~ GetFibonacci
 
     %% Local Connections
-    User --> Orchestrator
+    User -->|HTTP / SSE| Orchestrator
     Orchestrator -->|Delegates to| RollAgent
     RollAgent -->|Executes| RollDie
     Orchestrator -->|Delegates to| RemoteAgentClient
@@ -125,7 +128,8 @@ graph TD
     style CheckPrime fill:#fef7e0,stroke:#f4b400,stroke-width:2px,color:#b06000
     style GetFibonacci fill:#fef7e0,stroke:#f4b400,stroke-width:2px,color:#b06000
 
-    style localEnv fill:#e9eff8,stroke:#dadce0,stroke-width:1px
+    style userEnv fill:#e9eff8,stroke:#dadce0,stroke-width:1px
+    style runEnv fill:#fff3e0,stroke:#ffe0b2,stroke-width:1px
     style gcpEnv fill:#ecf3e6,stroke:#dadce0,stroke-width:1px
 ```
 
@@ -210,6 +214,32 @@ Now, run your local consumer agent:
 uv run adk run app "roll a 6-sided die and check if it's prime"
 ```
 It will roll the die locally using `roll_agent`, and call the dynamically discovered `math_agent` deployed on GCP over A2A to check the result.
+
+### Step 6: Deploy Orchestrator Web UI to GCP Cloud Run
+
+The orchestrator and Web UI can be containerized and run on Google Cloud Run to provide a hosted, fully functional Sandbox interface.
+
+1. **Service Account Permissions**:
+   The service account running the Cloud Run service needs the **Agent Registry Viewer** (`roles/agentregistry.viewer`) IAM role to dynamically fetch cards from the GCP Agent Registry:
+   ```bash
+   gcloud projects add-iam-policy-binding ninghai-ccai \
+       --member="serviceAccount:<PROJECT_NUMBER>-compute@developer.gserviceaccount.com" \
+       --role="roles/agentregistry.viewer"
+   ```
+
+2. **Required Environment Variables**:
+   To authenticate calls to the Vertex AI A2A reasoning engine without specifying API keys, the service must run with the following environment variables:
+   * `GOOGLE_GENAI_USE_VERTEXAI=TRUE`
+   * `GOOGLE_CLOUD_LOCATION=global`
+
+3. **Deployment Script**:
+   Deploy the service to Cloud Run by running:
+   ```bash
+   ./deploy_cloud_run.sh
+   ```
+   This script triggers Cloud Build to compile a Docker image using the `Dockerfile` with the astral `uv` cache, uploads it to Artifact Registry, and deploys it to Cloud Run with 1GB memory.
+
+Once complete, it will output the service URL (e.g., `https://a2a-web-ui-840328373082.us-central1.run.app`).
 
 
 ## Observability
