@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A2A Agent Playgrounds UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Sidebar for Prompt Presets -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-icon">🤖</span>
+          <span class="logo-text">A2A Demo App</span>
+        </div>
+      </div>
+      <div class="presets-section">
+        <h3>Prompt Presets</h3>
+        <ul class="presets-list" id="presets-list">
+          <li data-prompt="roll a 6-sided die and check if it's prime">
+            <span class="preset-icon">🎲</span>
+            <span class="preset-label">Roll & Check Prime</span>
+          </li>
+          <li data-prompt="check if 17 is a prime number">
+            <span class="preset-icon">🔢</span>
+            <span class="preset-label">Check if 17 is Prime</span>
+          </li>
+          <li data-prompt="generate a Fibonacci sequence of length 8">
+            <span class="preset-icon">📈</span>
+            <span class="preset-label">Fibonacci Sequence (8)</span>
+          </li>
+          <li
+            data-prompt="Roll a 10-sided die, get the result, and check if it is prime. Then get a Fibonacci sequence of that length.">
+            <span class="preset-icon">⚙️</span>
+            <span class="preset-label">Complex Combined Task</span>
+          </li>
+        </ul>
+      </div>
+      <div class="sidebar-footer">
+        <button id="reset-session-btn" class="btn btn-secondary">
+          <span class="btn-icon">🔄</span> Clear Session
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Chat Workspace -->
+    <main class="chat-workspace">
+      <header class="chat-header">
+        <div class="header-info">
+          <h2>Orchestrator Agent</h2>
+          <span class="status-indicator online"></span>
+          <span class="status-text">Connected to Vertex A2A</span>
+        </div>
+        <div class="session-badge">
+          Session: <span id="session-display">New Session</span>
+        </div>
+      </header>
+
+      <!-- Message Area -->
+      <section class="messages-container" id="messages-container">
+        <div class="message system">
+          <div class="message-content">
+            Welcome to the Agent-to-Agent (A2A) Playground. You can test your multi-agent orchestrator here. Ask a query
+            or click on a preset to get started!
+          </div>
+        </div>
+      </section>
+
+      <!-- Input Bar -->
+      <footer class="chat-input-area">
+        <form class="input-form" id="input-form">
+          <input type="text" id="query-input" placeholder="Type a message or command..." required autocomplete="off">
+          <button type="submit" class="btn btn-primary" id="send-btn">
+            <span class="send-icon">🚀</span>
+          </button>
+        </form>
+      </footer>
+    </main>
+  </div>
+  <script src="index.js"></script>
+</body>
+
+</html>

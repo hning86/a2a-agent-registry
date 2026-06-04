@@ -3,6 +3,9 @@ import logging
 import httpx
 from google.adk.agents.llm_agent import Agent
 from google.adk.agents.remote_a2a_agent import RemoteA2aAgent
+# Workaround for ADK agent transfer bug: RemoteA2aAgent inherits from BaseAgent (which forbids extra fields)
+# but the agent transfer runner checks and accesses `.mode` which is not declared on RemoteA2aAgent.
+RemoteA2aAgent.mode = property(lambda self: None)
 from google.adk.cli.utils.gcp_utils import get_access_token
 
 # Configure logging
