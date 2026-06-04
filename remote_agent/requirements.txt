@@ -1,0 +1,5 @@
+google-adk[a2a,agent-identity]==2.1.0
+a2a-sdk==0.3.26
+google-cloud-logging>=3.16.0
+google-cloud-aiplatform>=1.155.0
+pydantic>=2.0.0

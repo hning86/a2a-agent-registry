@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "google-adk-a2a-sample"
+version = "0.1.0"
+description = "A sample agent built with Google ADK and A2A Protocol"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "google-adk[a2a,agent-identity]",
+    "mcp",
+    "uvicorn",
+    "starlette",
+    "sse-starlette",
+    "google-cloud-aiplatform>=1.155.0",
+    "google-cloud-logging>=3.16.0",
+]
+
+[tool.setuptools]
+packages = ["remote_agent"]
+
+[tool.agents-cli]
+agent_directory = "remote_agent"
+region = "us-central1"
+
+[tool.agents-cli.create_params]
+deployment_target = "agent_runtime"
+is_a2a = true
+
+
