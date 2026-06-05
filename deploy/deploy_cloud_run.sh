@@ -45,7 +45,7 @@ fi
 
 # Submit Build to Cloud Build
 echo "Submitting build to Google Cloud Build..."
-gcloud builds submit --tag "$IMAGE_TAG" .
+gcloud builds submit --config=deploy/cloudbuild.yaml --substitutions=_IMAGE_TAG="$IMAGE_TAG" .
 
 # Deploy to Cloud Run
 echo "Deploying container to Google Cloud Run..."

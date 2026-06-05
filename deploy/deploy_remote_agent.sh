@@ -5,7 +5,7 @@ set -e
 echo "================================================================="
 echo "  Deploying/Updating Remote Agent on Vertex AI Agent Engine..."
 echo "================================================================="
-uv run python deploy_remote_agent.py
+uv run python deploy/deploy_remote_agent.py
 
 echo ""
 echo "================================================================="

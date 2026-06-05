@@ -16,7 +16,7 @@ RUN uv pip install --system -r pyproject.toml
 # Copy source code and config files
 COPY app/ ./app/
 COPY remote_agent/ ./remote_agent/
-COPY deployment_metadata.json ./deploy/deployment_metadata.json
+COPY deploy/deployment_metadata.json ./deploy/deployment_metadata.json
 
 # Expose default Cloud Run port
 EXPOSE 8080
@@ -24,6 +24,7 @@ EXPOSE 8080
 # Configure environment variables
 ENV PORT=8080
 ENV GOOGLE_CLOUD_LOCATION=global
+ENV PYTHONUNBUFFERED=1
 
 # Run the FastAPI app
-CMD ["uv", "run", "python", "-m", "app.web_app"]
+CMD ["python", "-m", "app.web_app"]

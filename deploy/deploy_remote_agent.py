@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 PROJECT_ID = "ninghai-ccai"
 REGION = "us-central1"
 DISPLAY_NAME = "math_agent"
-METADATA_FILE = "deployment_metadata.json"
+METADATA_FILE = "deploy/deployment_metadata.json"
 REQUIREMENTS_FILE = "remote_agent/requirements.txt"
 
 def main():

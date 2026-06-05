@@ -12,6 +12,21 @@ from google.adk.cli.utils.gcp_utils import get_access_token
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def get_robust_access_token() -> str:
+    try:
+        import google.auth
+        import google.auth.transport.requests
+        credentials, _ = google.auth.default()
+        auth_request = google.auth.transport.requests.Request()
+        credentials.refresh(auth_request)
+        if credentials.token:
+            logger.info("Successfully fetched GCP token via Application Default Credentials.")
+            return credentials.token
+    except Exception as e:
+        logger.warning(f"Could not retrieve Application Default Credentials token: {e}. Falling back to gcloud.")
+    
+    return get_access_token()
+
 # 1. Define Local Tool
 def roll_die(sides: int) -> int:
     """Roll a die with the specified number of sides and return the result.
@@ -37,7 +52,7 @@ Report the final rolled result clearly to the user.""",
 
 # Create an authenticated HTTP client for A2A communication with GCP
 def create_authenticated_client() -> httpx.AsyncClient:
-    token = get_access_token()
+    token = get_robust_access_token()
     return httpx.AsyncClient(
         headers={"Authorization": f"Bearer {token}"},
         timeout=httpx.Timeout(timeout=600.0)

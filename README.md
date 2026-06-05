@@ -235,9 +235,9 @@ The orchestrator and Web UI can be containerized and run on Google Cloud Run to 
 3. **Deployment Script**:
    Deploy the service to Cloud Run by running:
    ```bash
-   ./deploy_cloud_run.sh
+   ./deploy/deploy_cloud_run.sh
    ```
-   This script triggers Cloud Build to compile a Docker image using the `Dockerfile` with the astral `uv` cache, uploads it to Artifact Registry, and deploys it to Cloud Run with 1GB memory.
+   This script triggers Cloud Build to compile a Docker image using the `deploy/Dockerfile` with the astral `uv` cache, uploads it to Artifact Registry, and deploys it to Cloud Run with 1GB memory.
 
 Once complete, it will output the service URL (e.g., `https://a2a-web-ui-840328373082.us-central1.run.app`).
 
