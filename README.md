@@ -7,13 +7,23 @@ Agent generated with `agents-cli` version `0.1.1`
 
 ```
 google-adk-a2a-sample/
-├── app/         # Core agent code
-│   ├── agent.py               # Main agent logic
-│   ├── agent_runtime_app.py    # Agent Runtime application logic
-│   └── app_utils/             # App utilities and helpers
-├── tests/                     # Unit, integration, and load tests
-├── GEMINI.md                  # AI-assisted development guide
-└── pyproject.toml             # Project dependencies
+├── app/                     # Local consumer agent & Web UI
+│   ├── agent.py             # Entrypoint for local ADK runner (exposes root_agent)
+│   ├── consumer_agent.py    # Main local orchestrator agent and roll_agent logic
+│   ├── web_app.py           # FastAPI server serving Web UI and streaming agent events
+│   ├── app_utils/           # App utilities and helpers
+│   └── static/              # Frontend Web UI files (HTML, CSS, JS)
+├── remote_agent/            # Remote A2A agent deployed to Vertex AI
+│   ├── agent.py             # Main remote agent logic, tools, and AgentCard
+│   ├── requirements.txt     # Dependencies for the remote agent execution environment
+│   └── utils/               # Remote agent telemetry/logging helper
+├── deploy/                  # Scripts and files for GCP deployment
+│   ├── Dockerfile           # Dockerfile for deploying the Web UI to Cloud Run
+│   ├── deploy_cloud_run.sh  # Script to build and deploy Web UI to Cloud Run
+│   ├── deploy_remote_agent.py # Python script to deploy remote_agent to Vertex AI
+│   └── deploy_remote_agent.sh # Bash wrapper script for deploy_remote_agent.py
+├── GEMINI.md                # AI-assisted development guide
+└── pyproject.toml           # Project dependencies and tool configurations
 ```
 
 > 💡 **Tip:** Use [Gemini CLI](https://github.com/google-gemini/gemini-cli) for AI-assisted development - project context is pre-configured in `GEMINI.md`.
@@ -34,13 +44,19 @@ Install required packages:
 agents-cli install
 ```
 
-Test the agent with a local web server:
+Run the agent in the command line locally:
 
 ```bash
-agents-cli playground
+uv run adk run app "roll a 6-sided die and check if it's prime"
 ```
 
-You can also use features from the [ADK](https://adk.dev/) CLI with `uv run adk`.
+Or run the local web interface:
+
+```bash
+uv run python app/web_app.py
+```
+
+Then navigate to `http://localhost:8080` in your browser.
 
 ## Commands
 
@@ -49,7 +65,9 @@ You can also use features from the [ADK](https://adk.dev/) CLI with `uv run adk`
 | `agents-cli install` | Install dependencies using uv                                                         |
 | `agents-cli playground` | Launch local development environment                                                  |
 | `agents-cli lint`    | Run code quality checks                                                               |
-| `uv run pytest tests/unit tests/integration` | Run unit and integration tests                                                        |
+| `uv run adk run app "<query>"` | Run consumer agent query locally via CLI                                             |
+| `uv run python app/web_app.py` | Run local FastAPI web server for the Web UI                                          |
+| `./deploy/deploy_remote_agent.sh` | Deploy/Update remote agent to Vertex AI Agent Engine with tracking                  |
 | `agents-cli deploy`  | Deploy agent to Agent Runtime                                                                |
 | `agents-cli publish gemini-enterprise` | Register deployed agent to Gemini Enterprise                    |
 
@@ -152,28 +170,20 @@ deployment_target = "agent_runtime"
 is_a2a = true
 ```
 
-The remote entrypoint in `remote_agent/agent_runtime_app.py` exposes the `agent_runtime`:
+The remote entrypoint in `remote_agent/agent.py` exposes the `root_agent`:
 ```python
-agent_runtime = AgentEngineApp(
+root_agent = AgentEngineApp(
     agent_card=agent_card,
     agent_executor_builder=create_agent_executor,
 )
 ```
 
-To resolve model 404 errors inside Vertex AI, the remote agent imports `Gemini` and overrides the `api_client` using a custom class to force client calls to the `global` location:
-```python
-class GlobalGemini(Gemini):
-    @cached_property
-    def api_client(self) -> Client:
-        return Client(vertexai=True, location="global")
-```
-
 ### Step 2: Deploy to GCP Agent Engine
-To deploy the `math_agent`, run:
+To deploy or update the remote `math_agent` on Vertex AI Agent Engine, run the deployment script:
 ```bash
-agents-cli deploy --project ninghai-ccai
+./deploy/deploy_remote_agent.sh
 ```
-This packages the code inside `remote_agent/` only, uploads it to Google Cloud, and deploys/updates the Vertex AI Reasoning Engine instance.
+This script runs the ADK deployment command using parameters defined in `pyproject.toml`, manages agent creation/updating, and saves the resulting resource ID into `deploy/deployment_metadata.json`.
 
 ### Step 3: Publish to Gemini Enterprise Agent Registry
 After deploying, register your reasoning engine agent to Gemini Enterprise. This registers the agent metadata and card to the GCP Agent Registry:
@@ -209,11 +219,20 @@ math_agent_client = get_math_agent_client()
 ```
 
 ### Step 5: Run Local Consumer Agent
-Now, run your local consumer agent:
+You can run the local consumer agent in CLI mode or Web UI mode.
+
+**CLI Mode:**
 ```bash
 uv run adk run app "roll a 6-sided die and check if it's prime"
 ```
 It will roll the die locally using `roll_agent`, and call the dynamically discovered `math_agent` deployed on GCP over A2A to check the result.
+
+**Web UI Mode:**
+Start the FastAPI server:
+```bash
+uv run python app/web_app.py
+```
+Open your browser and navigate to `http://localhost:8080` to interact with the multi-agent chat interface.
 
 ### Step 6: Deploy Orchestrator Web UI to GCP Cloud Run
 
