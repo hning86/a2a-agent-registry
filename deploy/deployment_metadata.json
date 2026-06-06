@@ -1,6 +1,6 @@
 {
-  "remote_agent_runtime_id": "projects/840328373082/locations/us-central1/reasoningEngines/6154585055952896000",
+  "remote_agent_runtime_id": "projects/ninghai-ccai/locations/us-central1/reasoningEngines/6154585055952896000",
   "deployment_target": "agent_runtime",
   "is_a2a": true,
-  "deployment_timestamp": "2026-06-04T00:51:34.641494"
+  "deployment_timestamp": "2026-06-06T03:22:50.239817+00:00"
 }

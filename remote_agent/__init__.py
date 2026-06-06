@@ -1,3 +1,3 @@
-from .agent_runtime_app import agent_runtime as app
+from .agent import root_agent
 
-__all__ = ["app"]
+__all__ = ["root_agent"]
